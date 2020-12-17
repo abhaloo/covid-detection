@@ -36,33 +36,34 @@ print("--Get data--")
 # using 70% for training and 30% for testing/validation
 splitfolders.ratio("data", output="data-split", seed=1337, ratio=(.7,.3), group_prefix=None) # default values
 
+X_train_temp = np.zeros((521, 256, 256, 3))
+y_train_temp = np.zeros((521, 1))
+X_val_temp = np.zeros((225, 256, 256, 3))
+y_val_temp = np.zeros((225, 1))
+
+X_train = np.zeros((521, 256, 256, 3))
+y_train = np.zeros((521, 1))
+X_val = np.zeros((225, 256, 256, 3))
+y_val = np.zeros((255, 1))
+
 
 # Load images
 train_covid_path = glob('.\\data-split\\train\\CT_COVID\\*')
 train_normal_path = glob('.\\data-split\\train\\CT_NonCOVID\\*')
-val_covid_path = glob('.\\data-split\\val\\CT_COVID\\*')
-val_normal_path = glob('.\\data-split\\val\\CT_NonCOVID\\*')
+test_covid_path = glob('.\\data-split\\val\\CT_COVID\\*')
+test_normal_path = glob('.\\data-split\\val\\CT_NonCOVID\\*')
 
 #initialize new  arrays
-X_train_temp = []
-Y_train_temp = []
-X_val_temp = []
-Y_val_temp = []
-
-X_train = []
-Y_train = []
-X_test = []
-Y_test = []
-
 
 # Building the training array
 cnt = 0
 for img_file in train_covid_path:
     image_orig = cv2.imread(img_file)
-    image_resized = cv2.resize(image_orig, (256, 256))
+    image_resized = cv2.resize(image_orig, (256, 256), interpolation=cv2.INTER_CUBIC)
     img_array = img_to_array(image_resized)
-    X_train.append(img_array/255)
-    Y_train.append(1)
+
+    X_train_temp[cnt] = img_array/255
+    y_train_temp[cnt] = 1
     cnt += 1
 
 for img_file in train_normal_path:
@@ -70,40 +71,51 @@ for img_file in train_normal_path:
     image_resized = cv2.resize(image_orig, (256, 256), interpolation=cv2.INTER_CUBIC)
     img_array = img_to_array(image_resized)
 
-    X_train.append(img_array/255)
-    Y_train.append(0)
+    X_train_temp[cnt] = img_array/255
+    y_train_temp[cnt] = 0
     cnt += 1
 
-
-
-# Building the testing array
+# Building the validation array
 cnt = 0
-for img_file in val_covid_path:
+for img_file in test_covid_path:
     image_orig = cv2.imread(img_file)
     image_resized = cv2.resize(image_orig, (256, 256), interpolation=cv2.INTER_CUBIC)
     img_array = img_to_array(image_resized)
 
-    X_test.append(img_array / 255)
-    Y_test.append(1)
+    X_val_temp[cnt] = img_array/255   # Normalization
+    y_val_temp[cnt] = 1
     cnt += 1
 
-for img_file in val_normal_path:
+for img_file in test_normal_path:
     image_orig = cv2.imread(img_file)
     image_resized = cv2.resize(image_orig, (256, 256), interpolation=cv2.INTER_CUBIC)
     img_array = img_to_array(image_resized)
 
-    X_test.append(img_array / 255)
-    Y_test.append(1)
+    X_val_temp[cnt] = img_array/255   # Normalization
+    y_val_temp[cnt] = 0
     cnt += 1
 
+# Suffling the train and validation array
 
-# Converting data to numpy array
+num_list1 = [x for x in range(0, 521)]
+num_list2 = [x for x in range(0, 225)]
+
+random.shuffle(num_list1)
+random.shuffle(num_list2)
+
+for ind, num in enumerate(num_list1):
+    X_train[ind] = X_train_temp[num]
+    y_train[ind] = y_train_temp[num]
+
+for ind, num in enumerate(num_list2):
+    X_val[ind] = X_val_temp[num]
+    y_val[ind] = y_val_temp[num]
 
 
+# Converting an array to the image and displaying it
 
-
-num = random.randint(0, cnt)
-temp_img = array_to_img(X_test[10])
+num = random.randint(0, 746)
+temp_img = array_to_img(X_train[num])
 plt.imshow(temp_img)
-temp_img.show()
-print("Label for the image is(1 is Covid and 0 is normal): ", X_test[10])
+plt.show()
+print("Label for the image is(1 is Covid and 0 is normal): ", y_train[num])
