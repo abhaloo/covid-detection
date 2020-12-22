@@ -7,7 +7,7 @@ The network is quite large and has millions of parameters among all the layers a
 ### How to run:
 1. This project can be imported to Google Colab to run the notebook.   
 2. On Google Colab, make sure to change runtime to "GPU" for accelerated performance.   
-3. Provide images for the model to train and validate on by clicking on the folder on the right hand side of the screen.   
+3. Provide images for the model to train and validate on by clicking on the folder on the left hand side of the screen.   
     Right-click to upload a new folder called "data". The structure of directories within data must be maintained so that they can be read inside the notebook.   
 4. Run each cell going from the top of the notebook to the bottom.   
 
